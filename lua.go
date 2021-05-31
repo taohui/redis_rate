@@ -98,6 +98,7 @@ end
 
 tat = math.max(tat, now)
 
+-- 每次来早了取不到，来晚了能取到。
 local diff = now - (tat - burst_offset)
 local remaining = diff / emission_interval
 
@@ -120,9 +121,11 @@ else
 end
 
 local increment = emission_interval * cost
+-- 如果能取到，那么下一个时间就是当前时间+间隔
 local new_tat = tat + increment
 
 local reset_after = new_tat - now
+-- 下一个整秒的时候重置，如果不到下一个整秒，并且来的晚，可以多获取几个令牌
 if reset_after > 0 then
   redis.call("SET", rate_limit_key, new_tat, "EX", math.ceil(reset_after))
 end
